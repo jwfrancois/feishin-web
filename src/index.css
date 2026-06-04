@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-neutral-800;
+  }
+
+  body {
+    @apply bg-neutral-950 text-white antialiased;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-700 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-600;
+  }
+}
+
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: #404040 transparent;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* Equalizer animation for Now Playing indicator */
+@keyframes equalizer {
+  0%, 100% { height: 4px; }
+  25% { height: 75%; }
+  50% { height: 100%; }
+  75% { height: 50%; }
+}
+
+.animate-equalizer {
+  animation: equalizer 0.6s ease-in-out infinite;
+}
+
+/* Ken Burns effect for album art */
+@keyframes kenburns {
+  0% {
+    transform: scale(1) translate(0, 0);
+  }
+  25% {
+    transform: scale(1.1) translate(2%, 2%);
+  }
+  50% {
+    transform: scale(1.15) translate(-2%, 1%);
+  }
+  75% {
+    transform: scale(1.1) translate(1%, -2%);
+  }
+  100% {
+    transform: scale(1) translate(0, 0);
+  }
+}
+
+/* Theme color transition */
+:root {
+  --theme-color: #00FF94;
+  --theme-color-r: 0;
+  --theme-color-g: 255;
+  --theme-color-b: 148;
+  --theme-color-10: rgba(0, 255, 148, 0.1);
+  --theme-color-20: rgba(0, 255, 148, 0.2);
+  --theme-color-50: rgba(0, 255, 148, 0.5);
+}
+
+/* Smooth theme color transitions */
+.transition-theme {
+  transition: background-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
+}
