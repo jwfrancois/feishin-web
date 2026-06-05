@@ -1,50 +1,45 @@
-# React + TypeScript + Vite
+# Feishin Web - Jellyfin Music Player
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern web-based music player that integrates with Jellyfin media server.
 
-Currently, two official plugins are available:
+## Deployment to Vercel
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+1. **Push to GitHub:**
+   - Create a new repository on GitHub
+   - Push this code to your GitHub repository:
+     ```bash
+     git init
+     git add .
+     git commit -m "Initial commit"
+     git remote add origin https://github.com/YOUR_USERNAME/YOUR_REPO.git
+     git push -u origin main
+     ```
 
-## Expanding the ESLint configuration
+2. **Deploy on Vercel:**
+   - Go to https://vercel.com
+   - Click "Add New..." → Project
+   - Import your GitHub repository
+   - Configure:
+     - Framework Preset: Vite
+     - Build Command: `pnpm install --prefer-offline && rm -rf node_modules/.vite-temp && tsc -b && vite build`
+     - Output Directory: `dist`
+   - Click "Deploy"
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Local Development
 
-- Configure the top-level `parserOptions` property like this:
+```bash
+# Install dependencies
+pnpm install
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# Start development server
+pnpm dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Features
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+- Full Jellyfin server integration
+- Music, Podcasts, and Audiobooks support
+- Advanced audio processing (EQ, Concert Mode, Stem Separation)
+- Multiple visualizer types
+- Lyrics sync
+- And more!
