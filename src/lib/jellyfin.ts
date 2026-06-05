@@ -329,7 +329,8 @@ class JellyfinAPI {
   }
 
   getImageUrl(itemId: string, type = 'Primary', width = 300): string {
-    return `${this.baseUrl}/Items/${itemId}/Images/${type}?width=${width}&quality=90`;
+    const token = this.config?.accessToken || '';
+    return `${this.baseUrl}/Items/${itemId}/Images/${type}?width=${width}&quality=90&api_key=${encodeURIComponent(token)}`;
   }
 
   getStreamUrl(itemId: string): string {
