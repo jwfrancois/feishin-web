@@ -11,14 +11,11 @@ import {
   Shuffle,
   Repeat,
   Repeat1,
-  ChevronDown,
-  ListMusic,
-  Disc3,
 } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { jellyfinApi } from '@/lib/jellyfin';
 import { useThemeColorCSS } from '@/hooks/useThemeColor';
-import { useIsMobile } from '@/hooks/use-window-size';
+import { VisualizerSwitcher } from './VisualizerSwitcher';
 import { ABLoopMarkers } from './ABLoop';
 
 interface LyricLine {
@@ -75,7 +72,6 @@ export function FullscreenPlayer({ onClose }: Props) {
   const [lyrics, setLyrics] = useState<LyricLine[]>([]);
   const [showLyrics, setShowLyrics] = useState(true);
   const [kenBurnsPhase, setKenBurnsPhase] = useState(0);
-  const isMobile = useIsMobile();
 
   const imageUrl = currentTrack 
     ? jellyfinApi.getImageUrl(currentTrack.AlbumId || currentTrack.Id, 'Primary', 800)
@@ -83,6 +79,7 @@ export function FullscreenPlayer({ onClose }: Props) {
 
   useThemeColorCSS(imageUrl);
 
+  // Ken Burns animation phase
   useEffect(() => {
     const interval = setInterval(() => {
       setKenBurnsPhase(p => (p + 1) % 4);
@@ -90,6 +87,7 @@ export function FullscreenPlayer({ onClose }: Props) {
     return () => clearInterval(interval);
   }, [currentTrack?.Id]);
 
+  // Fetch lyrics
   useEffect(() => {
     if (!currentTrack) return;
 
@@ -145,156 +143,6 @@ export function FullscreenPlayer({ onClose }: Props) {
     { transform: 'scale(1.12) translate(-1%, -1%)' },
   ];
 
-  // Mobile-optimized layout
-  if (isMobile) {
-    return (
-      <div 
-        className="fixed inset-0 z-[100] bg-black flex flex-col"
-        onClick={(e) => {
-          if (e.target === e.currentTarget) onClose();
-        }}
-      >
-        {/* Background blur */}
-        {imageUrl && (
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-20 blur-2xl"
-            style={{ backgroundImage: `url(${imageUrl})` }}
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/80 to-black" />
-
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 z-10 p-2 text-white/80"
-        >
-          <ChevronDown className="w-6 h-6" />
-        </button>
-
-        {/* Main content - stacked vertically on mobile */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8 gap-6">
-          {/* Album art - smaller on mobile */}
-          <div className="w-56 h-56 max-w-[80vw] max-h-[80vw] relative">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                alt={currentTrack?.Album || ''}
-                className="w-full h-full object-cover rounded-lg shadow-xl"
-              />
-            ) : (
-              <div className="w-full h-full bg-neutral-800 rounded-lg flex items-center justify-center">
-                <Disc3 className="w-16 h-16 text-neutral-600" />
-              </div>
-            )}
-          </div>
-
-          {/* Track info */}
-          <div className="text-center">
-            <h2 className="text-xl font-bold text-white mb-1">{currentTrack?.Name || 'No track'}</h2>
-            <p className="text-base text-white/60">{currentTrack?.Artists?.join(', ')}</p>
-          </div>
-
-          {/* Lyrics - hide on mobile if no lyrics */}
-          {showLyrics && lyrics.length > 0 && (
-            <div className="flex-1 max-h-32 overflow-hidden text-center px-2">
-              <div className="space-y-2">
-                {lyrics.slice(0, 3).map((line, i) => (
-                  <div
-                    key={i}
-                    className={`text-sm ${
-                      i === activeLine - Math.min(activeLine, 1)
-                        ? 'text-white font-medium'
-                        : 'text-white/40'
-                    }`}
-                  >
-                    {line.text}
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Bottom controls */}
-        <div className="px-4 pb-6">
-          {/* Progress bar */}
-          <div className="flex items-center gap-3 mb-4">
-            <span className="text-xs text-white/50 font-mono w-10">{formatTime(currentTime)}</span>
-            <div
-              onClick={handleSeek}
-              className="flex-1 h-1.5 bg-white/20 rounded-full cursor-pointer"
-            >
-              <ABLoopMarkers duration={duration} />
-              <div
-                className="h-full rounded-full"
-                style={{
-                  width: `${progress}%`,
-                  backgroundColor: 'var(--theme-color, #00FF94)',
-                }}
-              />
-            </div>
-            <span className="text-xs text-white/50 font-mono w-10">{formatTime(duration)}</span>
-          </div>
-
-          {/* Controls - touch-friendly */}
-          <div className="flex items-center justify-center gap-4">
-            <button onClick={toggleShuffle} className={`p-3 ${shuffle ? 'text-player-accent' : 'text-white/60'}`}>
-              <Shuffle className="w-5 h-5" />
-            </button>
-
-            <button onClick={previous} className="p-3 text-white/80">
-              <SkipBack className="w-7 h-7" fill="currentColor" />
-            </button>
-
-            <button
-              onClick={toggle}
-              className="w-14 h-14 flex items-center justify-center rounded-full text-black"
-              style={{ backgroundColor: 'var(--theme-color, #00FF94)' }}
-            >
-              {isPlaying ? <Pause className="w-7 h-7" fill="currentColor" /> : <Play className="w-7 h-7 ml-1" fill="currentColor" />}
-            </button>
-
-            <button onClick={next} className="p-3 text-white/80">
-              <SkipForward className="w-7 h-7" fill="currentColor" />
-            </button>
-
-            <button onClick={cycleRepeat} className={`p-3 ${repeat !== 'off' ? 'text-player-accent' : 'text-white/60'}`}>
-              {repeat === 'one' ? <Repeat1 className="w-5 h-5" /> : <Repeat className="w-5 h-5" />}
-            </button>
-          </div>
-
-          {/* Volume and extra controls */}
-          <div className="flex items-center justify-center gap-4 mt-4">
-            <div className="flex items-center gap-2">
-              <button onClick={toggleMute} className="p-2 text-white/60">
-                {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={isMuted ? 0 : volume}
-                onChange={(e) => setVolume(parseFloat(e.target.value))}
-                className="w-20 h-1 bg-white/20 rounded-full appearance-none cursor-pointer"
-              />
-            </div>
-
-            {lyrics.length > 0 && (
-              <button
-                onClick={() => setShowLyrics(!showLyrics)}
-                className={`p-2 ${showLyrics ? 'text-player-accent' : 'text-white/60'}`}
-              >
-                <Music2 className="w-5 h-5" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Desktop layout (original)
   return (
     <div 
       className="fixed inset-0 z-[100] bg-black flex flex-col"
@@ -317,7 +165,7 @@ export function FullscreenPlayer({ onClose }: Props) {
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 z-10 p-2 text-white/60 hover:text-white bg-white/10 rounded-full backdrop-blur-sm"
+        className="absolute top-6 right-6 z-10 p-2 text-white/60 hover:text-white transition-colors bg-white/10 rounded-full backdrop-blur-sm"
       >
         <X className="w-6 h-6" />
       </button>
@@ -338,6 +186,11 @@ export function FullscreenPlayer({ onClose }: Props) {
               <Music2 className="w-24 h-24 text-neutral-600" />
             </div>
           )}
+          
+          {/* Visualizer overlay */}
+          <div className="absolute bottom-4 right-4">
+            <VisualizerSwitcher compact />
+          </div>
         </div>
 
         {/* Lyrics panel */}
@@ -379,6 +232,7 @@ export function FullscreenPlayer({ onClose }: Props) {
             onClick={handleSeek}
             className="flex-1 h-2 bg-white/20 rounded-full cursor-pointer group relative"
           >
+            {/* A-B Loop markers */}
             <ABLoopMarkers duration={duration} />
             <div
               className="h-full rounded-full relative transition-all"
@@ -402,7 +256,7 @@ export function FullscreenPlayer({ onClose }: Props) {
             <Shuffle className="w-5 h-5" />
           </button>
 
-          <button onClick={previous} className="p-3 text-white/80 hover:text-white">
+          <button onClick={previous} className="p-3 text-white/80 hover:text-white transition-colors">
             <SkipBack className="w-8 h-8" fill="currentColor" />
           </button>
 
@@ -414,7 +268,7 @@ export function FullscreenPlayer({ onClose }: Props) {
             {isPlaying ? <Pause className="w-8 h-8" fill="currentColor" /> : <Play className="w-8 h-8 ml-1" fill="currentColor" />}
           </button>
 
-          <button onClick={next} className="p-3 text-white/80 hover:text-white">
+          <button onClick={next} className="p-3 text-white/80 hover:text-white transition-colors">
             <SkipForward className="w-8 h-8" fill="currentColor" />
           </button>
 
@@ -426,7 +280,7 @@ export function FullscreenPlayer({ onClose }: Props) {
           </button>
 
           <div className="flex items-center gap-2 ml-4">
-            <button onClick={toggleMute} className="p-2 text-white/60 hover:text-white">
+            <button onClick={toggleMute} className="p-2 text-white/60 hover:text-white transition-colors">
               {isMuted || volume === 0 ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
             </button>
             <input

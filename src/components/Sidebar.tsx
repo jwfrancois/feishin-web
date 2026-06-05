@@ -10,25 +10,19 @@ import {
   LogOut,
   X,
   BarChart3,
-  Sparkles,
-  ChevronDown,
-  ChevronRight,
   Mic2,
   Headphones,
   BookOpen,
-  User,
   Radio,
-  Users2,
-  Map,
   FolderOpen,
+  ChevronDown,
+  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
 import { usePlayer } from '@/context/PlayerContext';
 import { jellyfinApi } from '@/lib/jellyfin';
 import { NowPlayingIndicator } from './NowPlayingIndicator';
 import { useState, useEffect } from 'react';
-import { SmartPlaylistModal } from './SmartPlaylistModal';
-import { ListeningRooms } from './ListeningRooms';
 
 interface Props {
   isOpen: boolean;
@@ -106,8 +100,6 @@ function NavItem({ to, icon: Icon, label, onClick }: { to: string; icon: typeof 
 export function Sidebar({ isOpen, onClose }: Props) {
   const { logout, config } = useAuth();
   const { currentTrack, isPlaying } = usePlayer();
-  const [showSmartPlaylist, setShowSmartPlaylist] = useState(false);
-  const [showRooms, setShowRooms] = useState(false);
 
   const handleNavClick = () => {
     if (window.innerWidth < 1024) onClose();
@@ -189,28 +181,7 @@ export function Sidebar({ isOpen, onClose }: Props) {
           <div className="pt-2 border-t border-neutral-800 mt-2">
             <NavItem to="/playlists" icon={ListMusic} label="Playlists" onClick={handleNavClick} />
             <NavItem to="/stats" icon={BarChart3} label="Stats" onClick={handleNavClick} />
-            <NavItem to="/map" icon={Map} label="Music Map" onClick={handleNavClick} />
           </div>
-
-          {/* Social Features */}
-          <div className="pt-2 border-t border-neutral-800 mt-2">
-            <button
-              onClick={() => setShowRooms(true)}
-              className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-            >
-              <Users2 className="w-4 h-4" />
-              Listening Rooms
-            </button>
-          </div>
-
-          {/* Smart Playlists */}
-          <button
-            onClick={() => setShowSmartPlaylist(true)}
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-          >
-            <Sparkles className="w-4 h-4" />
-            Smart Playlists
-          </button>
         </nav>
 
         {/* Now Playing Album Art with Ken Burns effect */}
@@ -278,15 +249,6 @@ export function Sidebar({ isOpen, onClose }: Props) {
         </div>
       </aside>
 
-      {/* Smart Playlist Modal */}
-      {showSmartPlaylist && (
-        <SmartPlaylistModal onClose={() => setShowSmartPlaylist(false)} />
-      )}
-
-      {/* Listening Rooms Modal */}
-      {showRooms && (
-        <ListeningRooms onClose={() => setShowRooms(false)} />
-      )}
     </>
   );
 }
