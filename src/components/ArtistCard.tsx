@@ -1,17 +1,23 @@
 import { Link } from 'react-router-dom';
 import type { Artist } from '@/types/jellyfin';
 import { jellyfinApi } from '@/lib/jellyfin';
+import { useBreakpoint } from '@/hooks/use-window-size';
 
 interface Props {
   artist: Artist;
 }
 
 export function ArtistCard({ artist }: Props) {
+  const breakpoint = useBreakpoint();
+  const isCompact = breakpoint === 'mobile' || breakpoint === 'tablet';
+
   return (
     <Link to={`/artist/${artist.Id}`} className="block group">
-      <div className="relative aspect-square rounded-full overflow-hidden bg-neutral-800 mb-3 mx-auto w-full max-w-[200px]">
+      <div className={`relative aspect-square rounded-full overflow-hidden bg-neutral-800 mb-3 mx-auto ${
+        isCompact ? 'w-24 max-w-[100px]' : 'w-full max-w-[200px]'
+      }`}>
         <img
-          src={jellyfinApi.getImageUrl(artist.Id, 'Primary', 200)}
+          src={jellyfinApi.getImageUrl(artist.Id, 'Primary', isCompact ? 100 : 200)}
           alt={artist.Name}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
           loading="lazy"
@@ -20,9 +26,13 @@ export function ArtistCard({ artist }: Props) {
           }}
         />
       </div>
-      <h3 className="font-semibold text-white text-center truncate">{artist.Name}</h3>
+      <h3 className={`font-semibold text-white text-center truncate ${
+        isCompact ? 'text-xs' : ''
+      }`}>{artist.Name}</h3>
       {artist.Genres && artist.Genres.length > 0 && (
-        <p className="text-sm text-neutral-400 text-center truncate">
+        <p className={`text-neutral-400 text-center truncate ${
+          isCompact ? 'text-[10px]' : 'text-sm'
+        }`}>
           {artist.Genres.slice(0, 2).join(', ')}
         </p>
       )}

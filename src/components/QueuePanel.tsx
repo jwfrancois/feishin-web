@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react';
-import { GripVertical, X, Sparkles } from 'lucide-react';
+import { GripVertical, X, Sparkles, ChevronDown } from 'lucide-react';
 import { usePlayer } from '@/context/PlayerContext';
 import { jellyfinApi } from '@/lib/jellyfin';
 import { ElectricityVisualizer } from './ElectricityVisualizer';
+import { useIsMobile } from '@/hooks/use-window-size';
 
 function formatDuration(ticks?: number): string {
   if (!ticks) return '0:00';
@@ -10,38 +11,6 @@ function formatDuration(ticks?: number): string {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${mins}:${secs.toString().padStart(2, '0')}`;
-}
-
-function AudioVisualizer({ isPlaying }: { isPlaying: boolean }) {
-  const bars = 24;
-  
-  return (
-    <div className="flex items-end justify-center gap-[2px] h-16 px-4 py-3 bg-neutral-900/80">
-      {Array.from({ length: bars }).map((_, i) => (
-        <div
-          key={i}
-          className={`w-2 bg-gradient-to-t from-player-accent to-blue-400 rounded-t-sm transition-all ${
-            isPlaying ? 'animate-pulse' : ''
-          }`}
-          style={{
-            height: isPlaying ? `${Math.random() * 100}%` : '8%',
-            animationDelay: `${i * 50}ms`,
-            animationDuration: `${300 + Math.random() * 400}ms`,
-            animation: isPlaying 
-              ? `visualizer-bar ${300 + (i % 5) * 100}ms ease-in-out infinite alternate` 
-              : 'none',
-          }}
-        />
-      ))}
-      <style>{`
-        @keyframes visualizer-bar {
-          0% { height: 15%; }
-          50% { height: ${40 + Math.random() * 30}%; }
-          100% { height: ${60 + Math.random() * 40}%; }
-        }
-      `}</style>
-    </div>
-  );
 }
 
 export function QueuePanel() {
@@ -60,6 +29,7 @@ export function QueuePanel() {
   const [dragIndex, setDragIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const dragNode = useRef<HTMLDivElement | null>(null);
+  const isMobile = useIsMobile();
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     setDragIndex(index);
@@ -88,9 +58,107 @@ export function QueuePanel() {
 
   if (!currentTrack) return null;
 
+  // Mobile-optimized queue view
+  if (isMobile) {
+    return (
+      <div className="max-h-[60vh] overflow-y-auto">
+        {/* Header */}
+        <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between">
+          <h2 className="text-white font-semibold">Queue ({queue.length})</h2>
+          {autoDJ && (
+            <span className="flex items-center gap-1 text-xs text-player-accent">
+              <Sparkles className="w-3 h-3" />
+              Auto DJ
+            </span>
+          )}
+        </div>
+
+        {/* Current track - featured */}
+        {queue.length > 0 && (
+          <div className="p-3 border-b border-neutral-800">
+            <div className="text-xs text-neutral-500 mb-2">NOW PLAYING</div>
+            <div className="flex items-center gap-3">
+              <img
+                src={jellyfinApi.getImageUrl(queue[queueIndex]?.AlbumId || queue[queueIndex]?.Id, 'Primary', 56)}
+                alt=""
+                className="w-12 h-12 rounded object-cover"
+              />
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-player-accent font-medium truncate">
+                  {queue[queueIndex]?.Name}
+                </div>
+                <div className="text-xs text-neutral-400 truncate">
+                  {queue[queueIndex]?.Artists?.join(', ')}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Upcoming tracks */}
+        <div className="p-3">
+          <div className="text-xs text-neutral-500 mb-2">UP NEXT</div>
+          <div className="divide-y divide-neutral-800/50">
+            {queue.map((track, index) => {
+              if (index === queueIndex) return null;
+              return (
+                <div
+                  key={`${track.Id}-${index}`}
+                  className="flex items-center gap-2 py-2"
+                  onClick={() => playTracks(queue, index)}
+                >
+                  <span className="w-6 text-xs text-neutral-500 text-right flex-shrink-0">
+                    {index + 1}
+                  </span>
+                  <img
+                    src={jellyfinApi.getImageUrl(track.AlbumId || track.Id, 'Primary', 40)}
+                    alt=""
+                    className="w-8 h-8 rounded object-cover flex-shrink-0"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-white truncate">{track.Name}</div>
+                    <div className="text-xs text-neutral-400 truncate">{track.Artists?.join(', ')}</div>
+                  </div>
+                  <span className="text-xs text-neutral-500 flex-shrink-0">
+                    {formatDuration(track.RunTimeTicks)}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeFromQueue(index);
+                    }}
+                    className="p-1 text-neutral-500"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Auto DJ */}
+        <div className="p-3 border-t border-neutral-800">
+          <button
+            onClick={toggleAutoDJ}
+            className={`w-full py-2.5 px-4 text-sm font-medium rounded flex items-center justify-center gap-2 ${
+              autoDJ
+                ? 'bg-player-accent text-black'
+                : 'bg-neutral-800 text-neutral-300'
+            }`}
+          >
+            <Sparkles className="w-4 h-4" />
+            AUTO DJ {autoDJ ? 'ON' : 'OFF'}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop view
   return (
     <div className="hidden lg:flex w-[300px] xl:w-[380px] flex-shrink-0 bg-neutral-900/50 border-l border-neutral-800 flex-col">
-      {/* Header with queue count */}
+      {/* Header */}
       <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between">
         <h2 className="text-white font-semibold text-sm">Now Playing ({queue.length})</h2>
         {autoDJ && (
@@ -185,7 +253,7 @@ export function QueuePanel() {
         )}
       </div>
 
-      {/* Electricity Visualizer */}
+      {/* Visualizer */}
       <ElectricityVisualizer height={80} />
 
       {/* Auto DJ Button */}
