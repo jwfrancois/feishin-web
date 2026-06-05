@@ -18,7 +18,6 @@ import { SettingsPage } from '@/pages/SettingsPage';
 import { StatsPage } from '@/pages/StatsPage';
 import { PodcastsPage } from '@/pages/PodcastsPage';
 import { AudiobooksPage } from '@/pages/AudiobooksPage';
-import { MusicMapPage } from '@/pages/MusicMapPage';
 import { FoldersPage } from '@/pages/FoldersPage';
 import { FolderContentsPage } from '@/pages/FolderContentsPage';
 
@@ -87,7 +86,6 @@ function App() {
             <Route path="/audiobooks" element={<AudiobooksPage />} />
             <Route path="/settings" element={<SettingsPage />} />
             <Route path="/stats" element={<StatsPage />} />
-            <Route path="/map" element={<MusicMapPage />} />
             <Route path="/folders" element={<FoldersPage />} />
             <Route path="/folders/:folderId" element={<FolderContentsPage />} />
           </Route>
