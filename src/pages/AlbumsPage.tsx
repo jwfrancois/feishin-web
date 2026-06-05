@@ -5,7 +5,6 @@ import { SearchBar } from '@/components/SearchBar';
 import { usePlayer } from '@/context/PlayerContext';
 import type { Album } from '@/types/jellyfin';
 import { ChevronDown } from 'lucide-react';
-import { useIsMobile, useBreakpoint } from '@/hooks/use-window-size';
 
 const SORT_OPTIONS = [
   { value: 'SortName', label: 'Name' },
@@ -22,8 +21,6 @@ export function AlbumsPage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const { playTracks } = usePlayer();
-  const isMobile = useIsMobile();
-  const breakpoint = useBreakpoint();
 
   const LIMIT = 50;
 
@@ -67,19 +64,16 @@ export function AlbumsPage() {
   };
 
   return (
-    <div className={isMobile ? 'p-3 space-y-4' : 'p-6 space-y-6'}>
-      {/* Header */}
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <h1 className={isMobile ? 'text-xl font-bold text-white' : 'text-3xl font-bold text-white'}>
-          Albums
-        </h1>
-        <div className="flex items-center gap-2">
+    <div className="p-6 space-y-6">
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h1 className="text-3xl font-bold text-white">Albums</h1>
+        <div className="flex items-center gap-4">
           <SearchBar />
           <div className="relative">
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="appearance-none bg-neutral-800 border border-neutral-700 rounded-lg pr-8 text-white text-sm focus:outline-none focus:border-primary-500 touch-target"
+              className="appearance-none bg-neutral-800 border border-neutral-700 rounded-lg px-4 py-2 pr-8 text-white text-sm focus:outline-none focus:border-primary-500"
             >
               {SORT_OPTIONS.map((opt) => (
                 <option key={opt.value} value={opt.value}>
@@ -89,12 +83,19 @@ export function AlbumsPage() {
             </select>
             <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
           </div>
+          <button
+            onClick={() =>
+              setSortOrder((o) => (o === 'Ascending' ? 'Descending' : 'Ascending'))
+            }
+            className="px-3 py-2 bg-neutral-800 border border-neutral-700 rounded-lg text-white text-sm hover:bg-neutral-700"
+          >
+            {sortOrder === 'Ascending' ? 'A-Z' : 'Z-A'}
+          </button>
         </div>
       </div>
 
-      {/* Grid - responsive columns */}
       {albums.length > 0 ? (
-        <div className="card-grid">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-6">
           {albums.map((album) => (
             <AlbumCard
               key={album.Id}
@@ -119,7 +120,7 @@ export function AlbumsPage() {
         <div className="flex justify-center">
           <button
             onClick={handleLoadMore}
-            className="px-6 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg transition-colors touch-target"
+            className="px-6 py-2 bg-neutral-800 hover:bg-neutral-700 text-white rounded-lg transition-colors"
           >
             Load More
           </button>

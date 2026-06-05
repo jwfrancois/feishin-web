@@ -5,14 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { CrossfadeSlider, useCrossfade } from '@/components/CrossfadeSettings';
 import { ScrobblingSettings, useScrobbling } from '@/components/ScrobblingSettings';
-import { SmartPlaylistModal } from '@/components/SmartPlaylistModal';
 
 export function SettingsPage() {
   const { config, logout } = useAuth();
   const navigate = useNavigate();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const [showShortcuts, setShowShortcuts] = useState(false);
-  const [showSmartPlaylist, setShowSmartPlaylist] = useState(false);
 
   const { duration: crossfadeDuration, setDuration: setCrossfadeDuration } = useCrossfade();
   const { config: scrobblingConfig, setConfig: setScrobblingConfig } = useScrobbling();
@@ -102,25 +100,6 @@ export function SettingsPage() {
         />
       </section>
 
-      {/* Smart Playlists */}
-      <section className="bg-neutral-900 rounded-lg p-6 border border-neutral-800">
-        <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
-          <Sparkles className="w-5 h-5 text-primary-500" />
-          Smart Playlists
-        </h2>
-
-        <p className="text-neutral-400 text-sm mb-4">
-          Generate playlists based on listening history and track metadata.
-        </p>
-
-        <button
-          onClick={() => setShowSmartPlaylist(true)}
-          className="px-4 py-2 bg-player-accent text-black font-medium rounded-lg hover:bg-player-accent/90 transition-colors"
-        >
-          Create Smart Playlist
-        </button>
-      </section>
-
       {/* Keyboard Shortcuts */}
       <section className="bg-neutral-900 rounded-lg p-6 border border-neutral-800">
         <h2 className="text-lg font-semibold text-white flex items-center gap-2 mb-4">
@@ -193,9 +172,6 @@ export function SettingsPage() {
       {/* Modals */}
       {showShortcuts && (
         <KeyboardShortcutsModal onClose={() => setShowShortcuts(false)} />
-      )}
-      {showSmartPlaylist && (
-        <SmartPlaylistModal onClose={() => setShowSmartPlaylist(false)} />
       )}
     </div>
   );
